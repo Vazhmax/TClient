@@ -72,7 +72,7 @@
 // Disables the possibility to add class methods. Can increase the
 // portability of the library.
 
-// AS_MAX_PORTABILITY
+#define AS_MAX_PORTABILITY
 // Disables all platform specific code. Only the asCALL_GENERIC calling
 // convention will be available in with this flag set.
 

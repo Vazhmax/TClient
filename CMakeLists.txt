@@ -2283,47 +2283,6 @@ file(GLOB ENGINE_EXTERNAL_ANGELSCRIPT
 )
 list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_ANGELSCRIPT})
 
-if(MSVC)
-  enable_language(ASM_MASM)
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    list(APPEND ENGINE_EXTERNAL
-      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_x64_msvc_asm.asm)
-  endif()
-  if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64")
-    list(APPEND ENGINE_EXTERNAL
-      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_msvc.asm)
-  endif()
-endif()
-
-if(NOT MSVC)
-  enable_language(ASM)
-  # ARM64
-  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
-    if(APPLE)
-      list(APPEND ENGINE_EXTERNAL
-        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_xcode.S)
-    else()
-      list(APPEND ENGINE_EXTERNAL
-        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_gcc.S)
-    endif()
-  endif()
-  # ARM32
-  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv[5-8].*|armhf|armv7l)$")
-    if(APPLE)
-      list(APPEND ENGINE_EXTERNAL
-        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm_xcode.S)
-    else()
-      list(APPEND ENGINE_EXTERNAL
-        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm_gcc.S)
-    endif()
-  endif()
-  # RISC-V 64
-  if(CMAKE_SYSTEM_PROCESSOR MATCHES "riscv64")
-    list(APPEND ENGINE_EXTERNAL
-      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_riscv64_gcc.S)
-  endif()
-endif()
-
 set_src(ENGINE_GFX GLOB src/engine/gfx
   image.cpp
   image_loader.cpp
