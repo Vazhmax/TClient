@@ -2282,6 +2282,7 @@ file(GLOB_RECURSE ENGINE_EXTERNAL_ANGELSCRIPT
   "${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/*.cpp"
 )
 list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_ANGELSCRIPT})
+set_source_files_properties(${ENGINE_EXTERNAL_ANGELSCRIPT} PROPERTIES COMPILE_FLAGS "-w")
 
 set_src(ENGINE_GFX GLOB src/engine/gfx
   image.cpp
