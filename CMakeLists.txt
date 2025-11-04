@@ -2600,6 +2600,8 @@ if(CLIENT)
     components/spectator.h
     components/statboard.cpp
     components/statboard.h
+    components/tclient/angelscript.cpp
+    components/tclient/angelscript.h
     components/tclient/bg_draw.cpp
     components/tclient/bg_draw.h
     components/tclient/bg_draw_file.cpp
@@ -2610,8 +2612,6 @@ if(CLIENT)
     components/tclient/bindwheel.h
     components/tclient/chaiscript.cpp
     components/tclient/chaiscript.h
-    components/tclient/angelscript.cpp
-    components/tclient/angelscript.h
     components/tclient/custom_communities.cpp
     components/tclient/custom_communities.h
     components/tclient/data_version.h
