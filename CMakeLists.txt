@@ -2278,7 +2278,7 @@ file(GLOB_RECURSE ENGINE_EXTERNAL_CHAISCRIPT
 list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_CHAISCRIPT})
 
 # AngelScript for tclient
-file(GLOB ENGINE_EXTERNAL_ANGELSCRIPT
+file(GLOB_RECURSE ENGINE_EXTERNAL_ANGELSCRIPT
   "${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/*.cpp"
 )
 list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_ANGELSCRIPT})
@@ -2849,7 +2849,6 @@ if(CLIENT)
   target_include_directories(game-client SYSTEM PRIVATE
     ${PROJECT_SOURCE_DIR}/src/engine/external/chaiscript)
 
-  # Silence/mark external AngelScript headers as system
   target_include_directories(game-client SYSTEM PRIVATE
     ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript)
 
