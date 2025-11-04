@@ -18,6 +18,7 @@ class CMapLayers : public CComponent, public IEnvelopeEval
 {
 	// TClient
 	friend class CChaiScriptRunner;
+	friend class CAngelScriptRunner;
 	friend class COutlines;
 
 	friend class CBackground;

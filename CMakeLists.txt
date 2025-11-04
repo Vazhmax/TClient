@@ -2277,6 +2277,53 @@ file(GLOB_RECURSE ENGINE_EXTERNAL_CHAISCRIPT
 )
 list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_CHAISCRIPT})
 
+# AngelScript for tclient
+file(GLOB ENGINE_EXTERNAL_ANGELSCRIPT
+  "${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/*.cpp"
+)
+list(APPEND ENGINE_EXTERNAL ${ENGINE_EXTERNAL_ANGELSCRIPT})
+
+if(MSVC)
+  enable_language(ASM_MASM)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    list(APPEND ENGINE_EXTERNAL
+      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_x64_msvc_asm.asm)
+  endif()
+  if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64")
+    list(APPEND ENGINE_EXTERNAL
+      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_msvc.asm)
+  endif()
+endif()
+
+if(NOT MSVC)
+  enable_language(ASM)
+  # ARM64
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
+    if(APPLE)
+      list(APPEND ENGINE_EXTERNAL
+        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_xcode.S)
+    else()
+      list(APPEND ENGINE_EXTERNAL
+        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm64_gcc.S)
+    endif()
+  endif()
+  # ARM32
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv[5-8].*|armhf|armv7l)$")
+    if(APPLE)
+      list(APPEND ENGINE_EXTERNAL
+        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm_xcode.S)
+    else()
+      list(APPEND ENGINE_EXTERNAL
+        ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_arm_gcc.S)
+    endif()
+  endif()
+  # RISC-V 64
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "riscv64")
+    list(APPEND ENGINE_EXTERNAL
+      ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript/as_callfunc_riscv64_gcc.S)
+  endif()
+endif()
+
 set_src(ENGINE_GFX GLOB src/engine/gfx
   image.cpp
   image_loader.cpp
@@ -2563,6 +2610,8 @@ if(CLIENT)
     components/tclient/bindwheel.h
     components/tclient/chaiscript.cpp
     components/tclient/chaiscript.h
+    components/tclient/angelscript.cpp
+    components/tclient/angelscript.h
     components/tclient/custom_communities.cpp
     components/tclient/custom_communities.h
     components/tclient/data_version.h
@@ -2840,6 +2889,10 @@ if(CLIENT)
   # Silence warnings from ChaiScript
   target_include_directories(game-client SYSTEM PRIVATE
     ${PROJECT_SOURCE_DIR}/src/engine/external/chaiscript)
+
+  # Silence/mark external AngelScript headers as system
+  target_include_directories(game-client SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/engine/external/angelscript)
 
   target_include_directories(game-client SYSTEM PRIVATE
     ${FREETYPE_INCLUDE_DIRS}

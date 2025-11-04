@@ -172,6 +172,7 @@ void CGameClient::OnConsoleInit()
 					      &m_Motd,
 					      &m_Menus,
 					      &m_Tooltips,
+					      &m_AngelScript,
 					      &m_ChaiScript,
 					      &m_KeyBinder,
 					      &m_GameConsole,
