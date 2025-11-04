@@ -8,13 +8,12 @@
 class CAngelScript : public CComponent
 {
 private:
-    static void ConExecScript(IConsole::IResult *pResult, void *pUserData);
+	static void ConExecScript(IConsole::IResult *pResult, void *pUserData);
 
 public:
-    bool ExecScript(const char *pFilename, const char *pArgs);
-    void OnConsoleInit() override;
-    int Sizeof() const override { return sizeof(*this); }
+	bool ExecScript(const char *pFilename, const char *pArgs);
+	void OnConsoleInit() override;
+	int Sizeof() const override { return sizeof(*this); }
 };
 
 #endif
-
