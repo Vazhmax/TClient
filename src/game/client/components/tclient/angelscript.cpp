@@ -439,17 +439,10 @@ public:
 				if(Success)
 				{
 					// Find entry function
-					const char *Candidates[] = {"void main()", "void run()", "void tclient()"};
-					asIScriptFunction *pFunc = nullptr;
-					for(const char *Decl : Candidates)
-					{
-						pFunc = pMod->GetFunctionByDecl(Decl);
-						if(pFunc)
-							break;
-					}
+					asIScriptFunction *pFunc = pMod->GetFunctionByDecl("void main()");
 					if(!pFunc)
 					{
-						log_error("angelscript", "No entry function found in '%s' (expected one of: void main(), void run(), void tclient())", m_pFilename);
+						log_error("angelscript", "No void main() found in '%s'", m_pFilename);
 						Success = false;
 					}
 					else
