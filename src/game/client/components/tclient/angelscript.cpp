@@ -1,5 +1,3 @@
-#include "angelscript.h"
-
 #include <base/hash.h>
 #include <base/log.h>
 #include <base/str.h>
@@ -18,7 +16,6 @@
 #include <exception>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 class CAngelScriptRunner : CComponentInterfaces
@@ -37,24 +34,24 @@ private:
 		size_t m_Offset{};
 
 		// Write from engine into m_pOut
-		int Write(const void *ptr, asUINT size) override
+		int Write(const void *pPtr, asUINT Size) override
 		{
 			if(!m_pOut)
 				return asERROR;
-			const unsigned char *p = static_cast<const unsigned char *>(ptr);
-			m_pOut->insert(m_pOut->end(), p, p + size);
+			const unsigned char *p = static_cast<const unsigned char *>(pPtr);
+			m_pOut->insert(m_pOut->end(), p, p + Size);
 			return asSUCCESS;
 		}
 
 		// Read from m_pIn into engine
-		int Read(void *ptr, asUINT size) override
+		int Read(void *pStr, asUINT Size) override
 		{
 			if(!m_pIn)
 				return asERROR;
-			if(m_Offset + size > m_InSize)
+			if(m_Offset + Size > m_InSize)
 				return asERROR;
-			std::memcpy(ptr, m_pIn + m_Offset, size);
-			m_Offset += size;
+			std::memcpy(pStr, m_pIn + m_Offset, Size);
+			m_Offset += Size;
 			return asSUCCESS;
 		}
 	};
@@ -86,32 +83,32 @@ private:
 	class CStringFactory : public asIStringFactory
 	{
 	public:
-		const void *GetStringConstant(const char *data, asUINT length) override
+		const void *GetStringConstant(const char *pData, asUINT Length) override
 		{
-			std::string *p = new std::string(data, data + length);
+			std::string *p = new std::string(pData, pData + Length);
 			m_RefCounts[p] = 1;
 			return p;
 		}
-		int ReleaseStringConstant(const void *str) override
+		int ReleaseStringConstant(const void *pStr) override
 		{
-			auto *p = const_cast<std::string *>(static_cast<const std::string *>(str));
-			auto it = m_RefCounts.find(p);
-			if(it == m_RefCounts.end())
+			auto *p = const_cast<std::string *>(static_cast<const std::string *>(pStr));
+			auto It = m_RefCounts.find(p);
+			if(It == m_RefCounts.end())
 				return asERROR;
-			if(--it->second == 0)
+			if(--It->second == 0)
 			{
-				m_RefCounts.erase(it);
+				m_RefCounts.erase(It);
 				delete p;
 			}
 			return asSUCCESS;
 		}
-		int GetRawStringData(const void *str, char *data, asUINT *length) const override
+		int GetRawStringData(const void *pStr, char *pData, asUINT *Length) const override
 		{
-			auto *p = static_cast<const std::string *>(str);
-			if(length)
-				*length = (asUINT)p->size();
-			if(data)
-				std::memcpy(data, p->data(), p->size());
+			const auto *p = static_cast<const std::string *>(pStr);
+			if(Length)
+				*Length = (asUINT)p->size();
+			if(pData)
+				std::memcpy(pData, p->data(), p->size());
 			return asSUCCESS;
 		}
 
@@ -119,45 +116,42 @@ private:
 		std::unordered_map<std::string *, int> m_RefCounts;
 	};
 
-	static void DefaultConstructString(std::string *self)
+	static void DefaultConstructString(std::string *Self)
 	{
-		new(self) std::string();
+		new(Self) std::string();
 	}
-	static void CopyConstructString(const std::string &other, std::string *self)
+	static void CopyConstructString(const std::string &Other, std::string *Self)
 	{
-		new(self) std::string(other);
+		new(Self) std::string(Other);
 	}
-	static void DestructString(std::string *self)
+	static void DestructString(std::string *Self)
 	{
-		self->~basic_string();
+		Self->~basic_string();
 	}
-	static std::string &AssignString(const std::string &other, std::string *self)
+	static std::string &AssignString(const std::string &Other, std::string *Self)
 	{
-		*self = other;
-		return *self;
+		*Self = Other;
+		return *Self;
 	}
 
-	static void MessageCallback(const asSMessageInfo *msg, void *param)
+	static void MessageCallback(const asSMessageInfo *pMsg, void *pParam)
 	{
-		const char *type = "INFO";
-		if(msg->type == asMSGTYPE_WARNING)
-			type = "WARN";
-		else if(msg->type == asMSGTYPE_INFORMATION)
-			type = "INFO";
-		else if(msg->type == asMSGTYPE_ERROR)
-			type = "ERROR";
-
-		log_error("angelscript/%s", "%s (%d, %d): %s", type, msg->section ? msg->section : "<section>", msg->row, msg->col, msg->message ? msg->message : "");
+		const char *pType;
+		if(pMsg->type == asMSGTYPE_WARNING)
+			pType = "angelscript/warn";
+		else if(pMsg->type == asMSGTYPE_INFORMATION)
+			pType = "angelscript/info";
+		else if(pMsg->type == asMSGTYPE_ERROR)
+			pType = "angelscript/error";
+		else
+			pType = "angelscript/%s";
+		log_info(pType, "%s (%d, %d): %s", pMsg->section ? pMsg->section : "<section>", pMsg->row, pMsg->col, pMsg->message ? pMsg->message : "");
 	}
 
 	// Global functions exposed to script (use s_pActiveRunner)
 	static void ASPrint(const std::string &Str)
 	{
 		log_info("angelscript/print", "%s", Str.c_str());
-	}
-	static void ASPuts(const std::string &Str)
-	{
-		log_info("angelscript/puts", "%s", Str.c_str());
 	}
 	static void ASExec(const std::string &Str)
 	{
@@ -323,10 +317,9 @@ private:
 
 		// Global functions
 		pEngine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(ASPrint), asCALL_CDECL);
-		pEngine->RegisterGlobalFunction("void puts(const string &in)", asFUNCTION(ASPuts), asCALL_CDECL);
 		pEngine->RegisterGlobalFunction("void exec(const string &in)", asFUNCTION(ASExec), asCALL_CDECL);
 
-		struct Local
+		struct CLocal
 		{
 			static std::string Trampoline(const std::string &Str)
 			{
@@ -335,7 +328,7 @@ private:
 				return std::string();
 			}
 		};
-		pEngine->RegisterGlobalFunction("string state(const string &in)", asFUNCTION(Local::Trampoline), asCALL_CDECL);
+		pEngine->RegisterGlobalFunction("string state(const string &in)", asFUNCTION(CLocal::Trampoline), asCALL_CDECL);
 
 		// args as global property
 		pEngine->RegisterGlobalProperty("string args", &m_Args);
@@ -398,13 +391,13 @@ public:
 				std::string Key = m_pFilename;
 				SHA256_DIGEST CurHash = sha256(pScript, ScriptLen);
 
-				auto it = s_Cache.find(Key);
+				auto It = s_Cache.find(Key);
 				bool LoadedFromCache = false;
-				if(it != s_Cache.end() && it->second.m_Hash == CurHash && !it->second.m_Bytecode.empty())
+				if(It != s_Cache.end() && It->second.m_Hash == CurHash && !It->second.m_Bytecode.empty())
 				{
 					CBytecodeStream In{};
-					In.m_pIn = it->second.m_Bytecode.data();
-					In.m_InSize = it->second.m_Bytecode.size();
+					In.m_pIn = It->second.m_Bytecode.data();
+					In.m_InSize = It->second.m_Bytecode.size();
 					if(pMod->LoadByteCode(&In) >= 0)
 					{
 						LoadedFromCache = true;
