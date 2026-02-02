@@ -114,6 +114,7 @@ bool CServerInfo2::FromJsonRaw(CServerInfo2 *pOut, const json_value *pJson)
 
 	pOut->m_NumClients = 0;
 	pOut->m_NumPlayers = 0;
+	pOut->m_TeamZeroPlayers = 0;
 	for(unsigned i = 0; i < Clients.u.array.length; i++)
 	{
 		const json_value &Client = Clients[i];
@@ -123,12 +124,14 @@ bool CServerInfo2::FromJsonRaw(CServerInfo2 *pOut, const json_value *pJson)
 		const json_value &Score = Client["score"];
 		const json_value &IsPlayer = Client["is_player"];
 		const json_value &IsAfk = Client["afk"];
+		const json_value &Team = Client["team"];
 		Error = false;
 		Error = Error || ClientName.type != json_string || str_has_cc(ClientName);
 		Error = Error || Clan.type != json_string || str_has_cc(ClientName);
 		Error = Error || Country.type != json_integer;
 		Error = Error || Score.type != json_integer;
 		Error = Error || IsPlayer.type != json_boolean;
+		Error = Error || Team.type != json_integer;
 		if(Error)
 		{
 			return true;
@@ -226,6 +229,9 @@ bool CServerInfo2::FromJsonRaw(CServerInfo2 *pOut, const json_value *pJson)
 		if((bool)IsPlayer)
 		{
 			pOut->m_NumPlayers++;
+			if(json_int_get(&Team) == 0){
+				pOut->m_TeamZeroPlayers++;
+			}
 		}
 	}
 	return false;
@@ -239,6 +245,7 @@ bool CServerInfo2::operator==(const CServerInfo2 &Other) const
 	Unequal = Unequal || m_NumClients != Other.m_NumClients;
 	Unequal = Unequal || m_MaxPlayers != Other.m_MaxPlayers;
 	Unequal = Unequal || m_NumPlayers != Other.m_NumPlayers;
+	Unequal = Unequal || m_TeamZeroPlayers != Other.m_TeamZeroPlayers;
 	Unequal = Unequal || m_ClientScoreKind != Other.m_ClientScoreKind;
 	Unequal = Unequal || m_Passworded != Other.m_Passworded;
 	Unequal = Unequal || str_comp(m_aGameType, Other.m_aGameType) != 0;
@@ -274,6 +281,7 @@ CServerInfo2::operator CServerInfo() const
 	Result.m_NumClients = m_NumClients;
 	Result.m_MaxPlayers = m_MaxPlayers;
 	Result.m_NumPlayers = m_NumPlayers;
+	Result.m_TeamZeroPlayers = m_TeamZeroPlayers;
 	Result.m_ClientScoreKind = m_ClientScoreKind;
 	Result.m_RequiresLogin = m_RequiresLogin;
 	Result.m_Flags = m_Passworded ? SERVER_FLAG_PASSWORD : 0;

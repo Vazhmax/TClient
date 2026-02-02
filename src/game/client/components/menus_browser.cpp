@@ -734,7 +734,19 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 
 	View.HSplitTop(RowHeight, &Button, &View);
 	if(DoButton_CheckBox(&g_Config.m_BrFilterSpectators, Localize("Count players only"), g_Config.m_BrFilterSpectators, &Button))
+	{
 		g_Config.m_BrFilterSpectators ^= 1;
+		if(!g_Config.m_BrFilterSpectators)
+			g_Config.m_BrFilterTeam = 0;
+	}
+
+	View.HSplitTop(RowHeight, &Button, &View);
+	if(DoButton_CheckBox(&g_Config.m_BrFilterTeam, Localize("Count zero team only"), g_Config.m_BrFilterTeam, &Button))
+	{
+		g_Config.m_BrFilterTeam ^= 1;
+		if(g_Config.m_BrFilterTeam)
+			g_Config.m_BrFilterSpectators = 1;
+	}
 
 	View.HSplitTop(RowHeight, &Button, &View);
 	if(DoButton_CheckBox(&g_Config.m_BrFilterFull, Localize("Server not full"), g_Config.m_BrFilterFull, &Button))
@@ -890,6 +902,7 @@ void CMenus::ResetServerbrowserFilters()
 	g_Config.m_BrFilterConnectingPlayers = 1;
 	g_Config.m_BrFilterServerAddress[0] = '\0';
 	g_Config.m_BrFilterLogin = false; // TClient
+	g_Config.m_BrFilterTeam = 0;
 
 	if(g_Config.m_UiPage != PAGE_LAN)
 	{
@@ -1478,6 +1491,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 	m_pRemoveFriend = nullptr;
 	for(auto &vFriends : m_avFriends)
 		vFriends.clear();
+
 	m_avFriends[FRIEND_OFF].reserve(GameClient()->Friends()->NumFriends());
 	for(int FriendIndex = 0; FriendIndex < GameClient()->Friends()->NumFriends(); ++FriendIndex)
 	{

@@ -102,6 +102,7 @@ public:
 	int m_NumClients;
 	int m_MaxPlayers;
 	int m_NumPlayers;
+	int m_TeamZeroPlayers;
 	int m_Flags;
 	EClientScoreKind m_ClientScoreKind;
 	TRISTATE m_Favorite;

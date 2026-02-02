@@ -307,6 +307,8 @@ bool CServerBrowser::ValidateTypeName(const char *pTypeName) const
 
 int CServerBrowser::Players(const CServerInfo &Item) const
 {
+	//TODO: Should filterTeamzero affect this?
+	//if(g_Config.m_BrFilterTeam) return Item.m_TeamZeroPlayers;
 	return g_Config.m_BrFilterSpectators ? Item.m_NumPlayers : Item.m_NumClients;
 }
 
@@ -627,6 +629,7 @@ int CServerBrowser::SortHash() const
 	i |= g_Config.m_BrFilterCountry << 14;
 	i |= g_Config.m_BrFilterConnectingPlayers << 15;
 	i |= g_Config.m_BrFilterLogin << 16;
+	i |= g_Config.m_BrFilterTeam << 17;
 	return i;
 }
 
@@ -1637,7 +1640,10 @@ void CServerBrowser::LoadDDNetServers()
 
 void CServerBrowser::UpdateServerFilteredPlayers(CServerInfo *pInfo) const
 {
-	pInfo->m_NumFilteredPlayers = g_Config.m_BrFilterSpectators ? pInfo->m_NumPlayers : pInfo->m_NumClients;
+	if(g_Config.m_BrFilterTeam)
+		pInfo->m_NumFilteredPlayers = pInfo->m_TeamZeroPlayers;
+	else
+		pInfo->m_NumFilteredPlayers = g_Config.m_BrFilterSpectators ? pInfo->m_NumPlayers : pInfo->m_NumClients;
 	if(g_Config.m_BrFilterConnectingPlayers)
 	{
 		for(const auto &Client : pInfo->m_aClients)
